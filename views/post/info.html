@@ -1,12 +1,12 @@
 <div class="post_list">
     <h1 class="post_title">
-        {{ post.Title }}
+        {{ .post.Title }}
     </h1>
     <?php if ($post['comment_status']) {?>
     <a class="comments_link" href="#respond" title="发表评论">发表评论</a>
     <?php }?>
     <div class="post_content">
-        {{ str2html post.Content }}
+        {{ str2html .post.Content }}
     </div>
     <div class="post_meta">本文章发布于
         <a href="<?php echo site_url(get_from_array($categorys, 'id', $post['category'], 'channeltype').'/'.$post['id'].'/'.$post['slug']);?>">

@@ -34,7 +34,6 @@ func (c *BaseController) Prepare() {
 
 	// 友情链接
 	friendlinkLists, _ := models.FriendlinkLists(int64(1), int64(10))
-	fmt.Printf("%+v\n", friendlinkLists)
 
 	c.Data["menus"] = menus
 	c.Data["hotLists"] = hotLists
