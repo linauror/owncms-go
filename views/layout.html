@@ -35,7 +35,7 @@
         </div>
         <div id="content">
             <div class="left_con">
-                    {{.LayoutContent}}
+                {{.LayoutContent}}
             </div>
             <div class="right_con">
                 <form action="<?php echo site_url('search');?>" class="search_right">
@@ -46,38 +46,38 @@
                 <div class="widget">
                     <h3>热门文章</h3>
                     <ul>
-                        <?php foreach ($post_hot['list'] as $line) {?>
+                        {{ range $k, $v := .hotLists }}
                         <li>
-                            <a href="<?php echo site_url($line['channeltype'].'/'.$line['id'].'/'.$line['slug']);?>" title="<?php echo $line['title'];?>">
-                                <?php echo $line['title'];?>
+                            <a href="{{ $v.Category.Channeltype }}/{{ $v.Id }}/{{ $v.Slug }}" title="{{ $v.Title }}">
+                                {{ $v.Title }}
                             </a>
-                            <?php echo $line['click'];?>℃</li>
-                        <?php } ?>
+                            {{ $v.Click }}℃</li>
+                        {{ end }}
                     </ul>
                 </div>
                 <div class="widget">
                     <h3>最新评论</h3>
                     <ul>
-                        <?php foreach ($comments_new['list'] as $line) {?>
+                        {{ range $k, $v := .commentNewLists }}
                         <li>
-                            <a href="<?php echo site_url($line['channeltype'].'/'.$line['pid'].'/'.$line['slug']);?>#comments_id_<?php echo $line['id'];?>"
-                                title="评论给《<?php echo $line['title'];?>》">
-                                <?php echo $line['content'];?>
+                            <a href="{{ $v.Channeltype }}/{{ $v.Pid }}/{{ $v.Slug }}#comments_id_{{ $v.Id }}"
+                                title="评论给《{{ $v.Title }}》">
+                                {{ $v.Content }}
                             </a>
                         </li>
-                        <?php } ?>
+                        {{ end }}
                     </ul>
                 </div>
                 <div class="widget">
                     <h3>友情链接</h3>
                     <ul>
-                        <?php foreach ($friendlink['list'] as $line) {?>
+                        {{ range $k, $v := .friendlinkLists }}
                         <li>
-                            <a href="<?php echo $line['url']?>" title="<?php echo $line['dec'];?>" target="_blank">
-                                <?php echo $line['title'];?>
+                            <a href="{{ $v.Url }}" title="{{ $v.Dec }}" target="_blank">
+                                {{ $v.Title }}
                             </a>
                         </li>
-                        <?php } ?>
+                        {{ end }}
                     </ul>
                 </div>
                 <div class="widget">
@@ -94,13 +94,7 @@
         <div id="footer">
             Powered By
             <a href="/" target="_blank">OWNCMS</a> Design By Wordpress
-            <p>查询：
-                <?php echo $this->db->query_count;?>次 &nbsp;&nbsp;用时：{elapsed_time}秒 &nbsp;&nbsp;占用内存{memory_usage}
-                <script type="text/javascript" src="/static/js/owncms.js"></script>
-                <script type="text/javascript">
-                    var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
-                    document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F81e53d2f17ac8709fc7ee1c91813ee9b' type='text/javascript'%3E%3C/script%3E"));
-                </script>
+            <script type="text/javascript" src="/static/js/owncms.js"></script>
             </p>
         </div>
     </div>

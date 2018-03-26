@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"math"
 	"strings"
 
 	"github.com/linauror/owncms-go/models"
@@ -20,8 +21,25 @@ func (c *BaseController) Prepare() {
 	c.controllerName = strings.ToLower(controllerName[0 : len(controllerName)-10])
 	c.actionName = strings.ToLower(actionName)
 	menus, _ := models.MenuLists()
-	fmt.Println(menus)
+
+	// 热门列表
+	var hotFilter map[string]string
+	var hotOrderBy []string
+	hotOrderBy = append(hotOrderBy, "-click")
+	hotLists, _ := models.PostLists(int64(1), int64(10), hotOrderBy, hotFilter)
+
+	// 最新评论
+	var commentNewFilter map[string]string
+	commentNewLists, _ := models.CommentLists(int64(1), int64(10), commentNewFilter)
+
+	// 友情链接
+	friendlinkLists, _ := models.FriendlinkLists(int64(1), int64(10))
+	fmt.Printf("%+v\n", friendlinkLists)
+
 	c.Data["menus"] = menus
+	c.Data["hotLists"] = hotLists
+	c.Data["commentNewLists"] = commentNewLists
+	c.Data["friendlinkLists"] = friendlinkLists
 	c.Layout = "layout.html"
 }
 
@@ -48,4 +66,22 @@ func (c *BaseController) display(tpl ...string) {
 	}
 	c.Layout = "layout.html"
 	c.TplName = tplname
+}
+
+// pagination 分页
+func (c *BaseController) pagination(page, limit, total int64) string {
+	if total == 0 || total <= limit {
+		return ""
+	}
+	totalPage := int64(math.Ceil(float64(total) / float64(limit)))
+	str := `<div class="pagination">`
+	for i := int64(1); i <= totalPage; i++ {
+		if page == i {
+			str = str + fmt.Sprintf(`&nbsp;%d`, i)
+		} else {
+			str = str + fmt.Sprintf(`&nbsp;<a href="?page=%d">%d</a>`, i, i)
+		}
+	}
+	str = str + `</div>`
+	return str
 }

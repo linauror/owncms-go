@@ -15,4 +15,5 @@ import (
 
 func init() {
 	beego.Router("/", &controllers.IndexController{}, "get:Index")
+	beego.Router("/post/:id/:slug", &controllers.PostController{}, "get:Info")
 }

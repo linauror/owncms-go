@@ -9,16 +9,19 @@ type IndexController struct {
 }
 
 func (c *IndexController) Index() {
+	// 文章列表
 	filter := make(map[string]string)
-
+	var orderBy []string
 	title := c.GetString("title")
 	if len(title) > 0 {
 		filter["title"] = title
 	}
-
-	postLists, postTotal := models.PostLists(1, 3, filter)
+	page, _ := c.GetInt64("page", 1)
+	limit := int64(4)
+	postLists, postTotal := models.PostLists(page, limit, orderBy, filter)
 
 	c.Data["postTotal"] = postTotal
 	c.Data["postLists"] = postLists
+	c.Data["pagination"] = c.pagination(page, limit, postTotal)
 	c.display()
 }
