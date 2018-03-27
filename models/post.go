@@ -37,7 +37,7 @@ func init() {
 	orm.RegisterModel(new(Post))
 }
 
-func PostLists(page, limit int64, orderBy []string, filter map[string]string) ([]*Post, int64) {
+func GetAllPost(page, limit int64, orderBy []string, filter map[string]string) (lists []*Post, total int64) {
 	offset := (page - 1) * limit
 	query := orm.NewOrm().QueryTable(new(Post))
 	if len(filter) > 0 {
@@ -45,14 +45,15 @@ func PostLists(page, limit int64, orderBy []string, filter map[string]string) ([
 			switch k {
 			case "title":
 				query = query.Filter("title__contains", v)
+			case "category_slug":
+				query = query.Filter("category__slug", v)
 			default:
 				query = query.Filter(k, v)
 			}
 		}
 	}
 
-	total, _ := query.Count()
-	list := make([]*Post, 0)
+	total, _ = query.Count()
 
 	if len(orderBy) > 0 {
 		query = query.OrderBy(orderBy...)
@@ -60,18 +61,25 @@ func PostLists(page, limit int64, orderBy []string, filter map[string]string) ([
 		query = query.OrderBy("-sortrank", "-id")
 	}
 
-	query.Limit(limit, offset).RelatedSel().All(&list)
+	query.Limit(limit, offset).RelatedSel().All(&lists)
 
-	return list, total
+	return lists, total
 }
 
-func PostInfo(id int) (p *Post, err error) {
+func GetPostById(id int) (p *Post, err error) {
 	o := orm.NewOrm()
 	p = &Post{Id: id}
 	err = o.Read(p)
 	if err != nil {
 		return nil, err
 	}
+	o.LoadRelated(p, "Category")
 
 	return p, nil
+}
+
+func GetNextAndProvPost(id int) (n Post, p Post) {
+	orm.NewOrm().QueryTable(new(Post)).Filter("id__gt", id).RelatedSel().One(&n)
+	orm.NewOrm().QueryTable(new(Post)).Filter("id__lt", id).OrderBy("-id").RelatedSel().One(&p)
+	return n, p
 }

@@ -18,7 +18,7 @@ func (c *IndexController) Index() {
 	}
 	page, _ := c.GetInt64("page", 1)
 	limit := int64(4)
-	postLists, postTotal := models.PostLists(page, limit, orderBy, filter)
+	postLists, postTotal := models.GetAllPost(page, limit, orderBy, filter)
 
 	c.Data["postTotal"] = postTotal
 	c.Data["postLists"] = postLists

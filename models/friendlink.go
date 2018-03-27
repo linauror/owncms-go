@@ -20,14 +20,12 @@ func init() {
 	orm.RegisterModel(new(Friendlink))
 }
 
-func FriendlinkLists(page, limit int64) ([]*Friendlink, int64) {
+func GetAllFriendlink(page, limit int64) (lists []*Friendlink, total int64) {
 	offset := (page - 1) * limit
 	query := orm.NewOrm().QueryTable(new(Friendlink))
 
-	total, _ := query.Count()
-	list := make([]*Friendlink, 0)
+	total, _ = query.Count()
+	query.Limit(limit, offset).OrderBy("-id").All(&lists)
 
-	query.Limit(limit, offset).OrderBy("-id").All(&list)
-
-	return list, total
+	return lists, total
 }

@@ -34,23 +34,22 @@ func init() {
 	orm.RegisterModel(new(Comment))
 }
 
-func CommentLists(page, limit int64, filter map[string]string) ([]*Comment, int64) {
+func GetAllComment(page, limit int64, filter map[string]string) (lists []*Comment, total int64) {
 	offset := (page - 1) * limit
 	qb, _ := orm.NewQueryBuilder("mysql")
-	list := make([]*Comment, 0)
 	qb.Select("comment.*,post.slug,post.title,category.channeltype").From("comment").LeftJoin("post").On("comment.pid = post.id").LeftJoin("category").On("post.category = category.id")
 
 	query := orm.NewOrm().QueryTable(new(Comment))
 
 	var where []string
-	var cond []string
+	var params []string
 	if len(filter) > 0 {
 		for k, v := range filter {
 			switch k {
 			default:
 				query = query.Filter(k, v)
-				where = append(where, "post."+k+" = ?")
-				cond = append(cond, v)
+				where = append(where, "comment."+k+" = ?")
+				params = append(params, v)
 			}
 		}
 	}
@@ -58,13 +57,13 @@ func CommentLists(page, limit int64, filter map[string]string) ([]*Comment, int6
 		qb.Where(strings.Join(where, " AND "))
 	}
 
-	total, _ := query.Count()
+	total, _ = query.Count()
 
 	qb.OrderBy("post.id").Desc().Limit(int(limit)).Offset(int(offset))
 
 	sql := qb.String()
 	o := orm.NewOrm()
-	o.Raw(sql, cond).QueryRows(&list)
+	o.Raw(sql, params).QueryRows(&lists)
 
-	return list, total
+	return lists, total
 }

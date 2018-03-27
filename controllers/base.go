@@ -26,14 +26,14 @@ func (c *BaseController) Prepare() {
 	var hotFilter map[string]string
 	var hotOrderBy []string
 	hotOrderBy = append(hotOrderBy, "-click")
-	hotLists, _ := models.PostLists(int64(1), int64(10), hotOrderBy, hotFilter)
+	hotLists, _ := models.GetAllPost(int64(1), int64(10), hotOrderBy, hotFilter)
 
 	// 最新评论
 	var commentNewFilter map[string]string
-	commentNewLists, _ := models.CommentLists(int64(1), int64(10), commentNewFilter)
+	commentNewLists, _ := models.GetAllComment(int64(1), int64(10), commentNewFilter)
 
 	// 友情链接
-	friendlinkLists, _ := models.FriendlinkLists(int64(1), int64(10))
+	friendlinkLists, _ := models.GetAllFriendlink(int64(1), int64(10))
 
 	c.Data["menus"] = menus
 	c.Data["hotLists"] = hotLists

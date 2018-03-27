@@ -48,7 +48,7 @@
                     <ul>
                         {{ range $k, $v := .hotLists }}
                         <li>
-                            <a href="{{ $v.Category.Channeltype }}/{{ $v.Id }}/{{ $v.Slug }}" title="{{ $v.Title }}">
+                            <a href="/{{ $v.Category.Channeltype }}/{{ $v.Id }}/{{ $v.Slug }}" title="{{ $v.Title }}">
                                 {{ $v.Title }}
                             </a>
                             {{ $v.Click }}℃</li>
@@ -60,7 +60,7 @@
                     <ul>
                         {{ range $k, $v := .commentNewLists }}
                         <li>
-                            <a href="{{ $v.Channeltype }}/{{ $v.Pid }}/{{ $v.Slug }}#comments_id_{{ $v.Id }}"
+                            <a href="/{{ $v.Channeltype }}/{{ $v.Pid }}/{{ $v.Slug }}#comments_id_{{ $v.Id }}"
                                 title="评论给《{{ $v.Title }}》">
                                 {{ $v.Content }}
                             </a>

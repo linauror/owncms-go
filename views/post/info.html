@@ -2,33 +2,56 @@
     <h1 class="post_title">
         {{ .post.Title }}
     </h1>
-    <?php if ($post['comment_status']) {?>
+    {{ if .post.CommentStatus }}
     <a class="comments_link" href="#respond" title="发表评论">发表评论</a>
-    <?php }?>
+    {{ end }}
     <div class="post_content">
         {{ str2html .post.Content }}
     </div>
     <div class="post_meta">本文章发布于
-        <a href="<?php echo site_url(get_from_array($categorys, 'id', $post['category'], 'channeltype').'/'.$post['id'].'/'.$post['slug']);?>">
-            <?php echo $post['posttime']?>
-        </a>。 属于
-        <?php echo getParCategory($categorys, $post['category'], '<a category_id="%u" href="'.site_url('category/%s').'">%s</a>', ' 、 ');?> 分类。
-        <?php echo $post['tag'] ? '被贴了'.showtag($post['tag'], $thetag, '<a href="'.site_url('tag/%s').'">%s</a>', ' 、 ').'标签。' : '';?>
+        <a href="/{{ .post.Category.Channeltype }}/{{ .post.Id }}/{{ .post.Slug }}">{{ date .post.Posttime "Y-m-d H:i:s"}}</a>。 属于
+        <a href="/category/{{ .post.Category.Slug }}"> {{ .post.Category.Typename }}</a>分类。 {{ if .tags }} 被贴了 {{ range $k, $v := .tags }}
+        <a href="/tag/{{ $v.Tag }}">{{ $v.Tag }}</a>、 {{ end }} 标签。 {{ end }}
     </div>
 </div>
 <div class="post_near">
-    <?php echo $near_post['prev'] ? '<a href="'.site_url(get_from_array($categorys, 'id', $near_post['prev']['category'], 'channeltype').'/'.$near_post['prev']['id'].'/'.$near_post['prev']['slug']).'" class="prev_link" title = "上一篇《'.$near_post['prev']['title'].'》"> ← '.$near_post['prev']['title'].'</a>': '';?>
-    <?php echo $near_post['next'] ? '<a href="'.site_url(get_from_array($categorys, 'id', $near_post['next']['category'], 'channeltype').'/'.$near_post['next']['id'].'/'.$near_post['next']['slug']).'" class="next_link" title = "下一篇《'.$near_post['next']['title'].'》">'.$near_post['next']['title'].' → </a>': '';?>
+    {{ if .prevPost.Id }}
+    <a href="/{{ .prevPost.Category.Channeltype }}/{{ .prevPost.Id }}/{{ .prevPost.Slug }}" class="prev_link" title="上一篇《{{ .prevPost.Title }}》">
+    ← {{ .prevPost.Title }}</a>
+    {{ end }} {{ if .nextPost.Id }}
+    <a href="/{{ .nextPost.Category.Channeltype }}/{{ .nextPost.Id }}/{{ .nextPost.Slug }}" class="next_link" title="上一篇《{{ .nextPost.Title }}》">{{ .nextPost.Title }} → </a>
+    {{ end }}
 </div>
-<?php if ($post['comment_count']) {?>
+{{ if .post.CommentCount }}
 <div class="comments_list" id="comments_list">
-    <h3 class="comments_list_title">《
-        <?php echo $post['title'];?>》上有
-        <?php echo $post['comment_count'];?> 条评论</h3>
-    <?php echo show_comments_list($comments_list['list'], 0, $post['uid'])?>
+    <h3 class="comments_list_title">《{{ .post.Title }}》上有 {{ .post.CommentCount }} 条评论</h3>
+    {{ if .commentLists }}
+    <ol>
+        {{ range $k, $v := .commentLists }}
+        <li id="comments_id_{{ $v.Id }}">
+            <div class="comment_wrap">
+                <div class="comment_meta">
+                    <img src="http://www.gravatar.com/avatar/d31b28b83ac911a4b73373b758af64f9?s=44" class="avatar" />
+                    <p class="username">
+                        <strong>{{ $k }}楼</strong> {{ $v.Username }}
+                        {{ if $v.Uid }}
+                        <span>
+                            <a href="/author/{{ $v.Username }}" title="点击查看作者所有作品">文章作者</a>
+                        </span>
+                        {{ end }}
+                    </p>
+                    <p class="posttime">{{ date $v.Posttime "Y-m-d H:i:s" }}</p>
+                </div>
+                <div class="comment_content">{{ $v.Content }}</div>
+                <div class="comment_reply_link"><a href="#respond" onclick="go_reply({{ $v.Id }});">回复</a>↓</div>
+            </div>
+        </li>
+        {{ end }}
+    </ol>
+    {{ end }}
 </div>
-<?php }?>
-<?php if($post['comment_status']) {?>
+{{ end }}
+{{ if .post.CommentStatus }}
 <div id="respond" class="form">
     <h3>发表评论</h3>
     <form method="post" action="<?php echo site_url('post/ACT_comment_submit');?>" onsubmit="return check_comment_submit();">
@@ -139,4 +162,4 @@
         })
     </script>
 </div>
-<?php } ?>
+{{ end }}
