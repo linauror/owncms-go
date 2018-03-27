@@ -38,8 +38,8 @@
                 {{.LayoutContent}}
             </div>
             <div class="right_con">
-                <form action="<?php echo site_url('search');?>" class="search_right">
-                    <input type="text" name="q" class="search_right_q" value="" />
+                <form action="{{ urlfor "SearchController.Index" }}" class="search_right">
+                    <input type="text" name="q" class="search_right_q" value="{{ .q }}" />
                     <input type="submit" value="搜索" class="search_right_submit" />
                 </form>
                 <div class="widget user_info"></div>

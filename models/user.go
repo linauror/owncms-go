@@ -1,9 +1,13 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/astaxie/beego/orm"
+)
 
 type User struct {
-	Uid        int       `orm:"column(uid)"`
+	Uid        int       `orm:"column(uid);PK"`
 	Username   string    `orm:"column(username);size(20)" description:"用户名"`
 	Password   string    `orm:"column(password);size(32)" description:"密码"`
 	Salt       string    `orm:"column(salt);size(6)" description:"加密字符串"`
@@ -19,4 +23,23 @@ type User struct {
 	Isverify   int8      `orm:"column(isverify)" description:"是否已经通过验证"`
 	Status     int8      `orm:"column(status)" description:"1:正常0:禁止"`
 	Logincount uint      `orm:"column(logincount)" description:"登录次数"`
+}
+
+func (t *User) TableName() string {
+	return "user"
+}
+
+func init() {
+	orm.RegisterModel(new(User))
+}
+
+func GetUserByUsername(username string) (user *User, err error) {
+	o := orm.NewOrm()
+	user = &User{Username: username}
+	err = o.Read(user, "username")
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

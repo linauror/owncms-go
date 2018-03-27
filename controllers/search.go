@@ -4,25 +4,22 @@ import (
 	"github.com/linauror/owncms-go/models"
 )
 
-type CategoryController struct {
+type SearchController struct {
 	BaseController
 }
 
-func (c *CategoryController) Index() {
-	slug := c.Ctx.Input.Param(":slug")
-	categoryInfo, _ := models.GetCategoryBySlug(slug)
-
-	// 文章列表
+func (c *SearchController) Index() {
+	q := c.GetString("q")
 	filter := make(map[string]string)
 	orderBy := make([]string, 0)
-	filter["category_slug"] = slug
+	filter["title"] = q
 	page, _ := c.GetInt64("page", 1)
 	limit := int64(20)
 	postLists, postTotal := models.GetAllPost(page, limit, orderBy, filter)
 
+	c.Data["q"] = q
 	c.Data["postTotal"] = postTotal
 	c.Data["postLists"] = postLists
 	c.Data["pagination"] = c.pagination(page, limit, postTotal)
-	c.Data["categoryInfo"] = categoryInfo
 	c.display()
 }

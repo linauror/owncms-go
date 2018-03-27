@@ -1,21 +1,23 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/linauror/owncms-go/models"
 )
 
-type CategoryController struct {
+type AuthorController struct {
 	BaseController
 }
 
-func (c *CategoryController) Index() {
-	slug := c.Ctx.Input.Param(":slug")
-	categoryInfo, _ := models.GetCategoryBySlug(slug)
+func (c *AuthorController) Index() {
+	username := c.Ctx.Input.Param(":username")
+	userInfo, _ := models.GetUserByUsername(username)
 
 	// 文章列表
 	filter := make(map[string]string)
 	orderBy := make([]string, 0)
-	filter["category_slug"] = slug
+	filter["uid"] = strconv.Itoa(userInfo.Uid)
 	page, _ := c.GetInt64("page", 1)
 	limit := int64(20)
 	postLists, postTotal := models.GetAllPost(page, limit, orderBy, filter)
@@ -23,6 +25,6 @@ func (c *CategoryController) Index() {
 	c.Data["postTotal"] = postTotal
 	c.Data["postLists"] = postLists
 	c.Data["pagination"] = c.pagination(page, limit, postTotal)
-	c.Data["categoryInfo"] = categoryInfo
+	c.Data["userInfo"] = userInfo
 	c.display()
 }
