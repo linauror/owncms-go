@@ -26,5 +26,5 @@ func (c *AuthorController) Index() {
 	c.Data["postLists"] = postLists
 	c.Data["pagination"] = c.pagination(page, limit, postTotal)
 	c.Data["userInfo"] = userInfo
-	c.display()
+	c.TplName = "author.html"
 }

@@ -14,6 +14,10 @@ type BaseController struct {
 	beego.Controller
 	controllerName string
 	actionName     string
+	AuthUser       *models.User
+	Uid            int
+	Username       string
+	UserGroup      int8
 }
 
 func (c *BaseController) Prepare() {
@@ -35,7 +39,22 @@ func (c *BaseController) Prepare() {
 	// 友情链接
 	friendlinkLists, _ := models.GetAllFriendlink(int64(1), int64(10))
 
+	// 登录验证
+	token, isExistToken := c.GetSecureCookie(beego.AppConfig.String("appkey"), "token")
+	if isExistToken {
+		user, err := models.UserAuth(token)
+		if err == nil {
+			c.AuthUser = user
+			c.Uid = user.Uid
+			c.Username = user.Username
+			c.UserGroup = user.Group
+		}
+	}
+
+	c.Data["Uid"] = c.Uid
+	c.Data["AuthUser"] = c.AuthUser
 	c.Data["menus"] = menus
+	c.Data["controllerName"] = controllerName
 	c.Data["hotLists"] = hotLists
 	c.Data["commentNewLists"] = commentNewLists
 	c.Data["friendlinkLists"] = friendlinkLists
@@ -45,6 +64,15 @@ func (c *BaseController) Prepare() {
 // Error404 404页面
 func (c *BaseController) Error404() {
 	c.Layout = ""
+	c.Data["errorTitle"] = "页面没有找到"
+	c.Data["error"] = "404"
+	c.TplName = "404.html"
+}
+
+func (c *BaseController) ShowError(error string) {
+	c.Layout = ""
+	c.Data["errorTitle"] = "提示"
+	c.Data["error"] = error
 	c.TplName = "404.html"
 }
 

@@ -13,22 +13,4 @@ $(function () {
     $('.preview_img').live('click', function () {
         $(this).hide('normal');
     })
-
-    $.post('/uapi/checklogin', function (data) {
-        if (data) {
-            html = '';
-            data = eval('(' + data + ')');
-            html += '<h3>欢迎登录</h3>' +
-                '<a href="/profile"><img src="' + data.avatar + '?s=44" class="avatar" title="' + data.username + '" /></a>' +
-                '<p><strong>' + data.username + '</strong></p>' +
-                '<p><a href="/author/' + data.username + '.html" title="我的作品">我的作品</a>&nbsp;&nbsp;&nbsp;' +
-                (data.userurl ? '<a href="' + data.userurl + '" target="_blank">我的网站</a></p>' : '</p>') +
-                '<p>上次登录：' + data.logedtime + '</p>' +
-                '<p><a href="/login/loginout" title="退出登录">登出</a>&nbsp;&nbsp;&nbsp;' +
-                (data.group == 1 ? '<a href="/admin">后台管理</a></p>' : '</p>');
-            $('.right_con .user_info').html(html).show();
-            $('.right_con .login').html('<p><a href="/login/loginout" title="退出登录">登出</a>');
-        }
-    })
-
 })

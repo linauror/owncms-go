@@ -13,5 +13,5 @@ func (c *PageController) Info() {
 	PageInfo, _ := models.GetPageBySlug(slug)
 
 	c.Data["page"] = PageInfo
-	c.display()
+	c.TplName = "page.html"
 }

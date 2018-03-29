@@ -1,10 +1,18 @@
 package models
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"errors"
+	"io"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/astaxie/beego/orm"
 )
+
+const expireTime = 86400 * 30
 
 type User struct {
 	Uid        int       `orm:"column(uid);PK"`
@@ -38,7 +46,66 @@ func GetUserByUsername(username string) (user *User, err error) {
 	user = &User{Username: username}
 	err = o.Read(user, "username")
 	if err != nil {
+		return nil, errors.New("不存在的用户")
+	}
+
+	return user, nil
+}
+
+func UserLogin(username, password string, keepLogin bool) (user *User, token string, expiredTime int, err error) {
+	user, err = GetUserByUsername(username)
+	if err != nil {
+		return nil, "", 0, err
+	}
+
+	str := password + user.Salt
+	h := md5.New()
+	io.WriteString(h, str)
+	hash := h.Sum(nil)
+
+	if user.Password != hex.EncodeToString(hash) {
+		return nil, "", 0, errors.New("密码错误")
+	} else if user.Status != 1 {
+		return nil, "", 0, errors.New("该用户已经被禁用")
+	}
+
+	now := int(time.Now().Unix())
+	expiredTime = 0
+	if keepLogin {
+		expiredTime = now + expireTime
+	}
+	str = user.Username + "|" + strconv.Itoa(expiredTime)
+	h = md5.New()
+	io.WriteString(h, str+"|"+user.Password)
+	hash = h.Sum(nil)
+	token = str + "|" + string(hash)
+
+	return user, token, expiredTime, nil
+}
+
+func UserAuth(token string) (user *User, err error) {
+	str := strings.Split(token, "|")
+	if len(str) != 3 {
+		return nil, errors.New("token无效")
+	}
+
+	user, err = GetUserByUsername(str[0])
+	if err != nil {
 		return nil, err
+	}
+
+	expiredTime, _ := strconv.Atoi(str[1])
+	now := int(time.Now().Unix())
+	if now <= expiredTime {
+		return nil, errors.New("token已过期")
+	}
+
+	hashstr := user.Username + "|" + str[1]
+	h := md5.New()
+	io.WriteString(h, hashstr+"|"+user.Password)
+	hash := h.Sum(nil)
+	if string(hash) != str[2] {
+		return nil, errors.New("token无效")
 	}
 
 	return user, nil

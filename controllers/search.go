@@ -21,5 +21,5 @@ func (c *SearchController) Index() {
 	c.Data["postTotal"] = postTotal
 	c.Data["postLists"] = postLists
 	c.Data["pagination"] = c.pagination(page, limit, postTotal)
-	c.display()
+	c.TplName = "search.html"
 }

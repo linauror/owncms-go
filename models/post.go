@@ -83,3 +83,11 @@ func GetNextAndProvPost(id int) (n Post, p Post) {
 	orm.NewOrm().QueryTable(new(Post)).Filter("id__lt", id).OrderBy("-id").RelatedSel().One(&p)
 	return n, p
 }
+
+func GetPostsByTag(tagId int, page, limit int64) (lists []*Post, total int64) {
+	offset := (page - 1) * limit
+	sql := "SELECT * FROM post WHERE FIND_IN_SET(?, tag) LIMIT ?,?"
+	total, _ = orm.NewOrm().Raw(sql, tagId, offset, limit).QueryRows(&lists)
+
+	return lists, total
+}

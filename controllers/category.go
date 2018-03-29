@@ -24,5 +24,5 @@ func (c *CategoryController) Index() {
 	c.Data["postLists"] = postLists
 	c.Data["pagination"] = c.pagination(page, limit, postTotal)
 	c.Data["categoryInfo"] = categoryInfo
-	c.display()
+	c.TplName = "category.html"
 }

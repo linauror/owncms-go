@@ -32,5 +32,5 @@ func (c *PostController) Info() {
 	c.Data["prevPost"] = prevPost
 	c.Data["commentLists"] = commentLists
 	c.Data["post"] = post
-	c.display()
+	c.TplName = "post.html"
 }

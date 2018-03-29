@@ -1,4 +1,4 @@
- {{ range $k, $v := .postLists }}
+{{ range $k, $v := .postLists }}
 <div class="post_list">
     <h1 class="post_title">
         <a href="/{{ $v.Category.Channeltype }}/{{ $v.Id }}/{{ $v.Slug }}" title="{{ $v.Title }}">{{ $v.Title }}</a>

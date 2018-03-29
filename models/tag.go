@@ -21,3 +21,14 @@ func GetTagsByIds(ids []string) (lists []*Tag) {
 	orm.NewOrm().QueryTable(new(Tag)).Filter("id__in", ids).All(&lists)
 	return lists
 }
+
+func GetTagByStr(tag string) (t *Tag, err error) {
+	o := orm.NewOrm()
+	t = &Tag{Tag: tag}
+	err = o.Read(t, "tag")
+	if err != nil {
+		return nil, err
+	}
+
+	return t, nil
+}

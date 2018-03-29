@@ -38,11 +38,40 @@
                 {{.LayoutContent}}
             </div>
             <div class="right_con">
-                <form action="{{ urlfor "SearchController.Index" }}" class="search_right">
+                <form action="{{ urlfor " SearchController.Index " }}" class="search_right">
                     <input type="text" name="q" class="search_right_q" value="{{ .q }}" />
                     <input type="submit" value="搜索" class="search_right_submit" />
                 </form>
-                <div class="widget user_info"></div>
+                {{ if .Uid }}
+                <div class="widget user_info" style="display: block;">
+                    <h3>欢迎登录</h3>
+                    <a href="/user/profile">
+                        <img src="http://www.gravatar.com/avatar/d31b28b83ac911a4b73373b758af64f9?s=44" class="avatar" title="{{ .AuthUser.Username }}">
+                    </a>
+                    <p>
+                        <strong>{{ .AuthUser.Username }}</strong>
+                    </p>
+                    <p>
+                        <a href="/author/{{ .AuthUser.Username }}" title="我的作品">我的作品</a>&nbsp;&nbsp;&nbsp;
+                        <a href="{{ .AuthUser.Username }}" target="_blank">我的网站</a>
+                    </p>
+                    <p>上次登录：{{ date .AuthUser.Logedtime "Y-m-d H:i:s" }}</p>
+                    <p>
+                        <a href="/user/logout" title="退出登录">登出</a>&nbsp;&nbsp;&nbsp;
+                        {{ if ne .AuthUser.Group 3 }}<a href="/admin/">后台管理</a>{{ end }}
+                    </p>
+                </div>
+                {{ else }}
+                <div class="widget">
+                    <h3>功能</h3>
+                    <ul>
+                        <li class="login">
+                            <a href="/user/login" title="登录后台">登录</a>&nbsp;&nbsp;&nbsp;
+                            <a href="/user/register" title="没有账号？请注册">注册</a>
+                        </li>
+                    </ul>
+                </div>
+                {{ end }}
                 <div class="widget">
                     <h3>热门文章</h3>
                     <ul>
@@ -60,8 +89,7 @@
                     <ul>
                         {{ range $k, $v := .commentNewLists }}
                         <li>
-                            <a href="/{{ $v.Channeltype }}/{{ $v.Pid }}/{{ $v.Slug }}#comments_id_{{ $v.Id }}"
-                                title="评论给《{{ $v.Title }}》">
+                            <a href="/{{ $v.Channeltype }}/{{ $v.Pid }}/{{ $v.Slug }}#comments_id_{{ $v.Id }}" title="评论给《{{ $v.Title }}》">
                                 {{ $v.Content }}
                             </a>
                         </li>
@@ -78,15 +106,6 @@
                             </a>
                         </li>
                         {{ end }}
-                    </ul>
-                </div>
-                <div class="widget">
-                    <h3>功能</h3>
-                    <ul>
-                        <li class="login">
-                            <a href="<?php echo site_url('login');?>" title="登录后台">登录</a>&nbsp;&nbsp;&nbsp;
-                            <a href="<?php echo site_url('login/register');?>" title="没有账号？请注册">注册</a>
-                        </li>
                     </ul>
                 </div>
             </div>

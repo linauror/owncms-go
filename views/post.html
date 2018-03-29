@@ -33,7 +33,7 @@
                 <div class="comment_meta">
                     <img src="http://www.gravatar.com/avatar/d31b28b83ac911a4b73373b758af64f9?s=44" class="avatar" />
                     <p class="username">
-                        <strong>{{ $k }}楼</strong> {{ $v.Username }}
+                        <strong>{{ Add $k 1 }}楼</strong> {{ $v.Username }}
                         {{ if $v.Uid }}
                         <span>
                             <a href="/author/{{ $v.Username }}" title="点击查看作者所有作品">文章作者</a>
