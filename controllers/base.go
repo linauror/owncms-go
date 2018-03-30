@@ -8,7 +8,10 @@ import (
 	"github.com/linauror/owncms-go/models"
 
 	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/logs"
 )
+
+var GROUPS = map[int8]string{1: "管理员", 2: "编辑", 3: "普通会员"}
 
 type BaseController struct {
 	beego.Controller
@@ -21,9 +24,14 @@ type BaseController struct {
 }
 
 func (c *BaseController) Prepare() {
+	logs.SetLogger(logs.AdapterMultiFile, `{"filename":"logs/log.log"}`)
+
 	controllerName, actionName := c.GetControllerAndAction()
 	c.controllerName = strings.ToLower(controllerName[0 : len(controllerName)-10])
 	c.actionName = strings.ToLower(actionName)
+	fmt.Println("controllerName:" + controllerName)
+	fmt.Println("actionName:" + actionName)
+
 	menus, _ := models.MenuLists()
 
 	// 热门列表
@@ -69,18 +77,12 @@ func (c *BaseController) Error404() {
 	c.TplName = "404.html"
 }
 
+// 错误提示
 func (c *BaseController) ShowError(error string) {
 	c.Layout = ""
 	c.Data["errorTitle"] = "提示"
 	c.Data["error"] = error
 	c.TplName = "404.html"
-}
-
-func (c *BaseController) MsgTip(msg string) {
-	beego.ReadFromRequest(&c.Controller)
-	flash := beego.NewFlash()
-	flash.Error(msg)
-	flash.Store(&c.Controller)
 }
 
 //加载模板

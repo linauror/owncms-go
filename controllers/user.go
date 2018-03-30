@@ -1,6 +1,8 @@
 package controllers
 
 import (
+	"strconv"
+
 	"github.com/astaxie/beego"
 
 	"github.com/linauror/owncms-go/models"
@@ -30,9 +32,9 @@ func (c *UserController) Login() {
 }
 
 func (c *UserController) Logout() {
-	referer := c.Ctx.Request.Referer()
+	//referer := c.Ctx.Request.Referer()
 	c.SetSecureCookie(beego.AppConfig.String("appkey"), "token", "", -1)
-	c.Redirect(referer, 301)
+	//c.Redirect(referer, 301)
 }
 
 func (c *UserController) Register() {
@@ -40,5 +42,14 @@ func (c *UserController) Register() {
 }
 
 func (c *UserController) Profile() {
+	if c.AuthUser.Group <= 2 {
+		filter := make(map[string]string)
+		orderBy := make([]string, 0)
+		filter["uid"] = strconv.Itoa(c.AuthUser.Uid)
+		_, postTotal := models.GetAllPost(int64(1), int64(1), orderBy, filter)
+		c.Data["postTotal"] = postTotal
+	}
+
+	c.Data["groupDesc"] = GROUPS[c.AuthUser.Group]
 	c.display()
 }
