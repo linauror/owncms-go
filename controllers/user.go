@@ -13,6 +13,10 @@ type UserController struct {
 }
 
 func (c *UserController) Login() {
+	if c.Uid != 0 {
+		c.Redirect(c.Ctx.Request.Referer(), 302)
+	}
+
 	if c.Ctx.Input.IsGet() {
 		c.Data["referer"] = c.Ctx.Request.Referer()
 	} else {
@@ -26,15 +30,15 @@ func (c *UserController) Login() {
 			return
 		}
 		c.SetSecureCookie(beego.AppConfig.String("appkey"), "token", token, expiredTime)
-		c.Redirect(referer, 301)
+		c.Redirect(referer, 302)
 	}
 	c.display()
 }
 
 func (c *UserController) Logout() {
-	//referer := c.Ctx.Request.Referer()
+	referer := c.Ctx.Request.Referer()
 	c.SetSecureCookie(beego.AppConfig.String("appkey"), "token", "", -1)
-	//c.Redirect(referer, 301)
+	c.Redirect(referer, 302)
 }
 
 func (c *UserController) Register() {
@@ -42,6 +46,8 @@ func (c *UserController) Register() {
 }
 
 func (c *UserController) Profile() {
+	c.CheckLogin()
+
 	if c.AuthUser.Group <= 2 {
 		filter := make(map[string]string)
 		orderBy := make([]string, 0)

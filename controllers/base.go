@@ -85,6 +85,12 @@ func (c *BaseController) ShowError(error string) {
 	c.TplName = "404.html"
 }
 
+func (c *BaseController) CheckLogin() {
+	if c.Uid == 0 {
+		c.Redirect("/user/login", 302)
+	}
+}
+
 //加载模板
 func (c *BaseController) display(tpl ...string) {
 	var tplname string
