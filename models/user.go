@@ -4,10 +4,13 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/linauror/owncms-go/library"
 
 	"github.com/astaxie/beego/orm"
 )
@@ -16,11 +19,11 @@ const expireTime = 86400 * 30
 
 type User struct {
 	Uid        int       `orm:"column(uid);PK"`
-	Username   string    `orm:"column(username);size(20)" description:"用户名"`
-	Password   string    `orm:"column(password);size(32)" description:"密码"`
+	Username   string    `orm:"column(username);size(20)" description:"用户名" form:"username"`
+	Password   string    `orm:"column(password);size(32)" description:"密码" form:"password"`
 	Salt       string    `orm:"column(salt);size(6)" description:"加密字符串"`
-	Usermail   string    `orm:"column(usermail);size(20)" description:"用户邮箱"`
-	Userurl    string    `orm:"column(userurl);size(50)" description:"用户网址"`
+	Usermail   string    `orm:"column(usermail);size(20)" description:"用户邮箱" form:"usermail"`
+	Userurl    string    `orm:"column(userurl);size(50)" description:"用户网址" form:"userurl"`
 	Logintime  time.Time `orm:"column(logintime);type(datetime)" description:"登录时间"`
 	Loginip    string    `orm:"column(loginip);size(19)" description:"登录IP"`
 	Logedtime  time.Time `orm:"column(logedtime);type(datetime)" description:"上次登录时间"`
@@ -52,7 +55,7 @@ func GetUserByUsername(username string) (user *User, err error) {
 	return user, nil
 }
 
-func UserLogin(username, password string, keepLogin bool) (user *User, token string, expiredTime int, err error) {
+func UserLogin(username, password string, ip string, keepLogin bool) (user *User, token string, expiredTime int, err error) {
 	user, err = GetUserByUsername(username)
 	if err != nil {
 		return nil, "", 0, err
@@ -80,7 +83,44 @@ func UserLogin(username, password string, keepLogin bool) (user *User, token str
 	hash = h.Sum(nil)
 	token = str + "|" + string(hash)
 
+	user.Logedip = user.Loginip
+	user.Logedtime = user.Logintime
+	user.Loginip = ip
+	user.Logintime = time.Now()
+	user.Logincount = user.Logincount + 1
+	orm.NewOrm().Update(user, "logedip", "logedtime", "loginip", "logintime", "logincount")
+
 	return user, token, expiredTime, nil
+}
+
+func UserRegister(u *User) (user *User, err error) {
+	fmt.Printf("%+v", u)
+
+	salt := library.GetRandomString(6)
+
+	str := u.Password + salt
+	fmt.Println(str)
+
+	h := md5.New()
+	io.WriteString(h, str)
+	hash := h.Sum(nil)
+
+	u.Salt = salt
+	u.Password = hex.EncodeToString(hash)
+	u.Regtime = time.Now()
+	u.Group = 3
+	u.Isverify = 0
+	u.Status = 1
+	u.Logedip = u.Regip
+	u.Loginip = u.Regip
+	u.Logedtime = time.Now()
+	u.Logintime = time.Now()
+
+	uid, err := orm.NewOrm().Insert(u)
+	fmt.Println("uid:", uid)
+	fmt.Println("err:", err)
+
+	return u, nil
 }
 
 func UserAuth(token string) (user *User, err error) {

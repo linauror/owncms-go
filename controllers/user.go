@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/astaxie/beego"
 
@@ -23,8 +24,9 @@ func (c *UserController) Login() {
 		username := c.GetString("username")
 		password := c.GetString("password")
 		referer := c.GetString("referer")
+		ip := strings.Split(c.Ctx.Request.RemoteAddr, ":")
 		keepLogin, _ := c.GetBool("keepLogin")
-		_, token, expiredTime, err := models.UserLogin(username, password, keepLogin)
+		_, token, expiredTime, err := models.UserLogin(username, password, ip[0], keepLogin)
 		if err != nil {
 			c.ShowError(err.Error())
 			return
@@ -42,6 +44,22 @@ func (c *UserController) Logout() {
 }
 
 func (c *UserController) Register() {
+	if c.Ctx.Input.IsPost() {
+		u := models.User{}
+		c.ParseForm(&u)
+
+		ip := strings.Split(c.Ctx.Request.RemoteAddr, ":")
+		u.Regip = ip[0]
+
+		_, err := models.UserRegister(&u)
+
+		if err != nil {
+			c.ShowError(err.Error())
+			return
+		}
+
+		c.Redirect("/", 302)
+	}
 	c.display()
 }
 

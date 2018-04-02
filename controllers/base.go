@@ -29,8 +29,6 @@ func (c *BaseController) Prepare() {
 	controllerName, actionName := c.GetControllerAndAction()
 	c.controllerName = strings.ToLower(controllerName[0 : len(controllerName)-10])
 	c.actionName = strings.ToLower(actionName)
-	fmt.Println("controllerName:" + controllerName)
-	fmt.Println("actionName:" + actionName)
 
 	menus, _ := models.MenuLists()
 
