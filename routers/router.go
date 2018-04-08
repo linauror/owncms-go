@@ -17,6 +17,7 @@ func init() {
 	beego.Router("/", &controllers.IndexController{}, "get:Index")
 	beego.Router("/index", &controllers.IndexController{}, "get:Index")
 	beego.Router("/post/:id/:slug", &controllers.PostController{}, "get:Info")
+	beego.Router("/post/comment", &controllers.PostController{}, "post:Comment")
 	beego.Router("/page/:slug", &controllers.PageController{}, "get:Info")
 	beego.Router("/category/:slug", &controllers.CategoryController{}, "get:Index")
 	beego.Router("/author/:username", &controllers.AuthorController{}, "get:Index")

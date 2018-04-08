@@ -91,3 +91,8 @@ func GetPostsByTag(tagId int, page, limit int64) (lists []*Post, total int64) {
 
 	return lists, total
 }
+
+func (post *Post) View() {
+	post.Click = post.Click + 1
+	orm.NewOrm().Update(post, "click")
+}

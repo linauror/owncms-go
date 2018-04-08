@@ -28,7 +28,7 @@ func (c *UserController) Login() {
 		keepLogin, _ := c.GetBool("keepLogin")
 		_, token, expiredTime, err := models.UserLogin(username, password, ip[0], keepLogin)
 		if err != nil {
-			c.ShowError(err.Error())
+			c.ShowTip(err.Error())
 			return
 		}
 		c.SetSecureCookie(beego.AppConfig.String("appkey"), "token", token, expiredTime)
@@ -54,11 +54,12 @@ func (c *UserController) Register() {
 		_, err := models.UserRegister(&u)
 
 		if err != nil {
-			c.ShowError(err.Error())
+			c.ShowTip(err.Error())
 			return
 		}
 
-		c.Redirect("/", 302)
+		c.ShowTip("恭喜您，注册成功，请登录")
+		return
 	}
 	c.display()
 }
@@ -72,6 +73,31 @@ func (c *UserController) Profile() {
 		filter["uid"] = strconv.Itoa(c.AuthUser.Uid)
 		_, postTotal := models.GetAllPost(int64(1), int64(1), orderBy, filter)
 		c.Data["postTotal"] = postTotal
+	}
+
+	if c.Ctx.Input.IsPost() {
+		data := make(map[string]string)
+		if len(c.GetString("usermail")) > 0 {
+			data["usermail"] = c.GetString("usermail")
+		}
+		if len(c.GetString("userurl")) > 0 {
+			data["userurl"] = c.GetString("userurl")
+		}
+		if len(c.GetString("password")) > 0 {
+			data["password"] = c.GetString("password")
+		}
+
+		err := models.UserUpdate(c.AuthUser, data)
+		if err != nil {
+			c.ShowTip(err.Error())
+			return
+		}
+
+		if _, exist := data["password"]; exist {
+			c.SetSecureCookie(beego.AppConfig.String("appkey"), "token", "", -1)
+			c.ShowTip("密码已更新，请重新登录")
+			return
+		}
 	}
 
 	c.Data["groupDesc"] = GROUPS[c.AuthUser.Group]

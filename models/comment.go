@@ -9,9 +9,9 @@ import (
 
 type Comment struct {
 	Id          int       `orm:"column(id)"`
-	Uid         uint      `orm:"column(uid)" description:"用户ID"`
-	Pid         uint      `orm:"column(pid)" description:"文章ID"`
-	Reid        uint      `orm:"column(reid)" description:"上个回复ID"`
+	Uid         int       `orm:"column(uid)" description:"用户ID"`
+	Pid         int       `orm:"column(pid)" description:"文章ID"`
+	Reid        int       `orm:"column(reid)" description:"上个回复ID"`
 	Username    string    `orm:"column(username);size(50)" description:"姓名"`
 	Usermail    string    `orm:"column(usermail);size(30)" description:"邮件地址"`
 	Userurl     string    `orm:"column(userurl);size(50)" description:"链接地址"`
@@ -66,4 +66,9 @@ func GetAllComment(page, limit int64, filter map[string]string) (lists []*Commen
 	o.Raw(sql, params).QueryRows(&lists)
 
 	return lists, total
+}
+
+func (comment *Comment) Pub() (err error) {
+	_, err = orm.NewOrm().Insert(comment)
+	return err
 }

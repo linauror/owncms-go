@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -55,6 +54,17 @@ func GetUserByUsername(username string) (user *User, err error) {
 	return user, nil
 }
 
+func GetUserByUsermail(usermail string) (user *User, err error) {
+	o := orm.NewOrm()
+	user = &User{Usermail: usermail}
+	err = o.Read(user, "usermail")
+	if err != nil {
+		return nil, errors.New("不存在的用户")
+	}
+
+	return user, nil
+}
+
 func UserLogin(username, password string, ip string, keepLogin bool) (user *User, token string, expiredTime int, err error) {
 	user, err = GetUserByUsername(username)
 	if err != nil {
@@ -94,13 +104,18 @@ func UserLogin(username, password string, ip string, keepLogin bool) (user *User
 }
 
 func UserRegister(u *User) (user *User, err error) {
-	fmt.Printf("%+v", u)
+	checkuser, err := GetUserByUsername(u.Username)
+	if checkuser != nil {
+		return nil, errors.New("用户名已存在")
+	}
+
+	checkuser, err = GetUserByUsername(u.Usermail)
+	if checkuser != nil {
+		return nil, errors.New("用户邮箱已存在")
+	}
 
 	salt := library.GetRandomString(6)
-
 	str := u.Password + salt
-	fmt.Println(str)
-
 	h := md5.New()
 	io.WriteString(h, str)
 	hash := h.Sum(nil)
@@ -116,9 +131,10 @@ func UserRegister(u *User) (user *User, err error) {
 	u.Logedtime = time.Now()
 	u.Logintime = time.Now()
 
-	uid, err := orm.NewOrm().Insert(u)
-	fmt.Println("uid:", uid)
-	fmt.Println("err:", err)
+	_, err = orm.NewOrm().Insert(u)
+	if err != nil {
+		return nil, err
+	}
 
 	return u, nil
 }
@@ -149,4 +165,29 @@ func UserAuth(token string) (user *User, err error) {
 	}
 
 	return user, nil
+}
+
+func UserUpdate(user *User, data map[string]string) (err error) {
+	var fields []string
+	for k, v := range data {
+		fields = append(fields, k)
+		switch k {
+		case "usermail":
+			user.Usermail = v
+		case "userurl":
+			user.Userurl = v
+		case "password":
+			salt := library.GetRandomString(6)
+			str := v + salt
+			h := md5.New()
+			io.WriteString(h, str)
+			hash := h.Sum(nil)
+			user.Salt = salt
+			user.Password = hex.EncodeToString(hash)
+			fields = append(fields, "salt")
+		}
+	}
+
+	_, err = orm.NewOrm().Update(user, fields...)
+	return err
 }

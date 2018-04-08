@@ -76,7 +76,7 @@ func (c *BaseController) Error404() {
 }
 
 // 错误提示
-func (c *BaseController) ShowError(error string) {
+func (c *BaseController) ShowTip(error string) {
 	c.Layout = ""
 	c.Data["errorTitle"] = "提示"
 	c.Data["error"] = error

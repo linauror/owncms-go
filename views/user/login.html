@@ -7,14 +7,13 @@
         </p>
         <p>
             <input type="text" name="username" class="username" value="" tabindex="1" /> &nbsp;&nbsp;&nbsp;
-            <a href="/login/register">免费注册</a>
+            <a href="/user/register">免费注册</a>
         </p>
         <p>密码
             <span class="required">*</span>
         </p>
         <p>
             <input type="password" name="password" class="password" value="" tabindex="2" /> &nbsp;&nbsp;&nbsp;
-            <a href="javascript:;" onclick="getpassword();">忘记密码？</a>
         </p>
         <p>
             <input type="submit" value="登录" class="comment_submit" />
@@ -31,33 +30,6 @@
             } else if ($('.form .password').val().length < 1) {
                 alert('密码不能为空！');
                 $('.form .password').focus();
-                return false;
-            }
-        }
-    </script>
-</div>
-
-<div class="form getpassword" style="display: none;">
-    <form method="post" action="login/getpassword_submit" onsubmit="return checkgetpassword_form();">
-        <p>注册时填写的账号或邮箱
-            <span class="required">*</span>
-        </p>
-        <p>
-            <input type="text" name="username" class="username" value="" />
-        </p>
-        <p>
-            <input type="submit" value="找回密码" class="comment_submit" />
-        </p>
-    </form>
-    <script type="text/javascript">
-        function getpassword() {
-            $('.login').remove();
-            $('.getpassword').show();
-        }
-        function checkgetpassword_form() {
-            if ($('.form .username').val().length < 1) {
-                alert('账号/邮箱不能为空！');
-                $('.form .username').focus();
                 return false;
             }
         }
