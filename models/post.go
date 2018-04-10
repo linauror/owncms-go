@@ -29,6 +29,12 @@ type Post struct {
 	Category      *Category `orm:"rel(fk);column(category)"`
 }
 
+type TagPost struct {
+	Post
+	Channeltype string `orm:"column(channeltype)"`
+	Typename    string `orm:"column(typename)"`
+}
+
 func (t *Post) TableName() string {
 	return "post"
 }
@@ -84,15 +90,20 @@ func GetNextAndProvPost(id int) (n Post, p Post) {
 	return n, p
 }
 
-func GetPostsByTag(tagId int, page, limit int64) (lists []*Post, total int64) {
+func GetPostsByTag(tagId int, page, limit int64) (lists []*TagPost, total int64) {
 	offset := (page - 1) * limit
-	sql := "SELECT * FROM post WHERE FIND_IN_SET(?, tag) LIMIT ?,?"
+	sql := "SELECT post.*,category.typename,category.channeltype FROM post LEFT JOIN category ON category.id = post.category WHERE FIND_IN_SET(?, tag) LIMIT ?,?"
 	total, _ = orm.NewOrm().Raw(sql, tagId, offset, limit).QueryRows(&lists)
 
 	return lists, total
 }
 
-func (post *Post) View() {
+func (post *Post) NewView() {
 	post.Click = post.Click + 1
 	orm.NewOrm().Update(post, "click")
+}
+
+func (post *Post) NewComment() {
+	post.CommentCount = post.CommentCount + 1
+	orm.NewOrm().Update(post, "comment_count")
 }

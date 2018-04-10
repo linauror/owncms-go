@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -15,7 +16,7 @@ func (c *PostController) Info() {
 	idstr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idstr)
 	post, _ := models.GetPostById(id)
-	post.View()
+	post.NewView()
 
 	if _tagIds := post.Tag; len(_tagIds) > 0 {
 		tagIds := strings.Split(_tagIds, ",")
@@ -40,6 +41,13 @@ func (c *PostController) Comment() {
 	comment := models.Comment{}
 	comment.Uid = c.Uid
 	comment.Pid, _ = c.GetInt("pid")
+
+	post, err := models.GetPostById(comment.Pid)
+	if err != nil {
+		c.ShowTip(err.Error())
+		return
+	}
+
 	if c.Uid > 0 {
 		comment.Username = c.AuthUser.Username
 		comment.Usermail = c.AuthUser.Usermail
@@ -51,11 +59,12 @@ func (c *PostController) Comment() {
 	}
 	comment.Content = c.GetString("content")
 
-	err := comment.Pub()
+	id, err := comment.Pub()
 	if err != nil {
 		c.ShowTip(err.Error())
 		return
 	} else {
-		c.Redirect("post/"+strconv.Itoa(comment.Pid), 302)
+		post.NewComment()
+		c.Redirect(fmt.Sprintf("/post/%d/%s#comments_id_%d", comment.Pid, post.Slug, id), 302)
 	}
 }
