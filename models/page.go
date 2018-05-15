@@ -13,9 +13,9 @@ type Page struct {
 	Content    string    `orm:"column(content)" description:"内容"`
 	Posttime   time.Time `orm:"column(posttime);type(datetime)" description:"发表时间"`
 	Modifytime time.Time `orm:"column(modifytime);type(datetime)" description:"最后修改时间"`
-	Uid        uint      `orm:"column(uid)" description:"作者ID"`
 	Template   string    `orm:"column(template);size(50)" description:"模板名称"`
 	Ishidden   int8      `orm:"column(ishidden)" description:"是否隐藏"`
+	User       *User     `orm:"rel(fk);column(uid)"`
 }
 
 func (t *Page) TableName() string {
@@ -35,4 +35,31 @@ func GetPageBySlug(slug string) (page *Page, err error) {
 	}
 
 	return page, nil
+}
+
+func GetAllPage(page, limit int64, orderBy []string, filter map[string]string) (lists []*Page, total int64) {
+	offset := (page - 1) * limit
+	query := orm.NewOrm().QueryTable(new(Page))
+	if len(filter) > 0 {
+		for k, v := range filter {
+			switch k {
+			case "title":
+				query = query.Filter("title__contains", v)
+			default:
+				query = query.Filter(k, v)
+			}
+		}
+	}
+
+	total, _ = query.Count()
+
+	if len(orderBy) > 0 {
+		query = query.OrderBy(orderBy...)
+	} else {
+		query = query.OrderBy("-id")
+	}
+
+	query.Limit(limit, offset).RelatedSel().All(&lists)
+
+	return lists, total
 }

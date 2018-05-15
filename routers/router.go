@@ -9,6 +9,7 @@ package routers
 
 import (
 	"github.com/linauror/owncms-go/controllers"
+	"github.com/linauror/owncms-go/controllers/admin"
 
 	"github.com/astaxie/beego"
 )
@@ -24,4 +25,15 @@ func init() {
 	beego.Router("/search", &controllers.SearchController{}, "get:Index")
 	beego.Router("/tag/:tag", &controllers.TagController{}, "get:Index")
 	beego.AutoRouter(&controllers.UserController{})
+
+	ns := beego.NewNamespace("/admin",
+		beego.NSRouter("/", &admincontrollers.IndexController{}, "get:Index"),
+		beego.NSRouter("/login", &admincontrollers.IndexController{}, "get,post:Login"),
+		beego.NSRouter("/siteconfig", &admincontrollers.SiteconfigController{}, "get:Index"),
+		beego.NSRouter("/menu", &admincontrollers.MenuController{}, "get:Index"),
+		beego.NSAutoRouter(&admincontrollers.CategoryController{}),
+		beego.NSAutoRouter(&admincontrollers.PageController{}),
+		beego.NSAutoRouter(&admincontrollers.PostController{}),
+	)
+	beego.AddNamespace(ns)
 }
